@@ -9,51 +9,65 @@ import java.util.List;
 import java.util.logging.*;
 
 /**
- * DAO (Data Access Object) για τη διαχείριση των δεδομένων των Πανεπιστημίων.
+ * <h2>DAO για τη Διαχείριση Πανεπιστημίων (UniversityDAO)</h2>
  * 
- * Παρέχει μεθόδους για εισαγωγή, ενημέρωση, αναζήτηση και στατιστικά για τα πανεπιστήμια στη βάση δεδομένων Derby.
- * Χρησιμοποιεί try-with-resources για σωστή διαχείριση των πόρων και το Logger για καταγραφή συμβάντων.
- * Εφαρμόζει το πρότυπο Singleton ώστε να υπάρχει μόνο ένα instance.
+ * <p>
+ * Αυτή η κλάση είναι ένα Data Access Object (DAO) που έχει σχεδιαστεί για να παρέχει μεθόδους
+ * για την εισαγωγή, ενημέρωση, ανάκτηση, αναζήτηση και στατιστική ανάλυση δεδομένων για τα
+ * πανεπιστήμια που αποθηκεύονται σε μια βάση δεδομένων Apache Derby.
+ * </p>
  * 
+ * <p>
+ * Χαρακτηριστικά:
+ * <ul>
+ *   <li>Χρήση try-with-resources για την αυτόματη απελευθέρωση των πόρων (συνδέσεις, statements, result sets).</li>
+ *   <li>Χρήση του Logger για την καταγραφή σημαντικών συμβάντων, σφαλμάτων και πληροφοριών.</li>
+ *   <li>Εφαρμογή του προτύπου Singleton ώστε να υπάρχει μόνο ένα instance της κλάσης.</li>
+ * </ul>
+ * </p>
  */
 public class UniversityDAO {
 
-    /** Logger για την κλάση UniversityDAO. */
+    /** Logger για την καταγραφή συμβάντων της κλάσης UniversityDAO. */
     private static final Logger LOGGER = Logger.getLogger(UniversityDAO.class.getName());
 
     /** Το μοναδικό instance της κλάσης (Singleton, eager initialization). */
     private static final UniversityDAO INSTANCE = new UniversityDAO();
 
-    // Static block για αρχικοποίηση του Logger κατά τη φόρτωση της κλάσης.
+    // Static block για την αρχικοποίηση του Logger κατά τη φόρτωση της κλάσης.
     static {
         initializeLogger();
     }
 
     /**
-     * Ιδιωτικός constructor ώστε να μην δημιουργούνται εξωτερικά νέα instances.
+     * Ο ιδιωτικός constructor αποτρέπει τη δημιουργία επιπλέον instances της κλάσης.
      */
     private UniversityDAO() {
-        // Προαιρετικές αρχικοποιήσεις εάν χρειαστούν.
+        // Μπορούν να τοποθετηθούν επιπλέον αρχικοποιήσεις εάν χρειαστεί.
     }
 
     /**
      * Επιστρέφει το μοναδικό instance της κλάσης UniversityDAO.
      *
-     * @return το instance του UniversityDAO.
+     * @return Το instance του UniversityDAO.
      */
     public static UniversityDAO getInstance() {
         return INSTANCE;
     }
 
     /**
-     * Αρχικοποιεί τον Logger και τον ρυθμίζει να γράφει στο αρχείο logs/UniversityDAO.log.
+     * Αρχικοποιεί τον Logger και τον ρυθμίζει να γράφει τα μηνύματα στο αρχείο 
+     * <code>logs/UniversityDAO.log</code> χρησιμοποιώντας τον {@code SimpleFormatter}.
+     * <p>
+     * Αν υπάρχουν ήδη προηγούμενοι handlers, αυτοί αφαιρούνται για να αποφευχθούν διπλές καταγραφές.
+     * </p>
      */
     public static void initializeLogger() {
         try {
             Files.createDirectories(Paths.get("logs"));
             FileHandler fileHandler = new FileHandler("logs/UniversityDAO.log", true);
             fileHandler.setFormatter(new SimpleFormatter());
-            // Αφαίρεση τυχόν προηγούμενων Handlers
+            // Αφαίρεση όλων των προηγούμενων handlers.
             for (Handler handler : LOGGER.getHandlers()) {
                 LOGGER.removeHandler(handler);
             }
@@ -67,11 +81,14 @@ public class UniversityDAO {
     }
 
     /**
-     * Αναζητά ένα πανεπιστήμιο βάσει του ονόματος και της χώρας.
+     * Αναζητά ένα πανεπιστήμιο στη βάση δεδομένων βάσει του ονόματος και της χώρας.
+     * <p>
+     * Εκτελεί ένα SELECT ερώτημα με χρήση παραμέτρων για αποφυγή SQL injection.
+     * </p>
      *
-     * @param name    το όνομα του πανεπιστημίου.
-     * @param country η χώρα του πανεπιστημίου.
-     * @return το αντικείμενο University αν βρεθεί, αλλιώς {@code null}.
+     * @param name    Το όνομα του πανεπιστημίου.
+     * @param country Η χώρα στην οποία βρίσκεται το πανεπιστήμιο.
+     * @return Το αντικείμενο <code>University</code> αν βρεθεί, αλλιώς <code>null</code>.
      */
     public University getUniversityByNameAndCountry(String name, String country) {
         String sql = "SELECT * FROM UNIVERSITY WHERE NAME = ? AND COUNTRY = ?";
@@ -86,17 +103,21 @@ public class UniversityDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ανάκτηση του πανεπιστημίου με όνομα '" + name +
-                    "' και χώρα '" + country + "'", e);
+            LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ανάκτηση του πανεπιστημίου με όνομα '" 
+                    + name + "' και χώρα '" + country + "'", e);
         }
         return uni;
     }
 
     /**
      * Εισάγει ένα νέο πανεπιστήμιο στη βάση δεδομένων.
+     * <p>
+     * Εκτελεί ένα INSERT ερώτημα με χρήση παραμέτρων και επιστρέφει <code>true</code> αν η εισαγωγή
+     * ήταν επιτυχής.
+     * </p>
      *
-     * @param uni το αντικείμενο University που θα εισαχθεί.
-     * @return ✅ {@code true} αν η εισαγωγή ήταν επιτυχής, αλλιώς ⚠❌ {@code false}.
+     * @param uni Το αντικείμενο <code>University</code> που θα εισαχθεί.
+     * @return <code>true</code> αν η εισαγωγή ήταν επιτυχής, αλλιώς <code>false</code>.
      */
     public boolean insertUniversity(University uni) {
         String sql = "INSERT INTO UNIVERSITY (NAME, COUNTRY, ALPHATWOCODE, STATEPROVINCE, DOMAINS, WEBPAGES, " +
@@ -132,8 +153,11 @@ public class UniversityDAO {
 
     /**
      * Ενημερώνει τα δεδομένα ενός πανεπιστημίου που έχει τροποποιηθεί από τον χρήστη.
+     * <p>
+     * Εκτελεί ένα UPDATE ερώτημα για το συγκεκριμένο πανεπιστήμιο βάσει του ID του.
+     * </p>
      *
-     * @param uni το αντικείμενο University που θα ενημερωθεί.
+     * @param uni Το αντικείμενο <code>University</code> με τις νέες τιμές.
      */
     public void updateUniversityUser(University uni) {
         String sql = "UPDATE UNIVERSITY SET NAME=?, COUNTRY=?, ALPHATWOCODE=?, STATEPROVINCE=?, DOMAINS=?, " +
@@ -163,183 +187,192 @@ public class UniversityDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ενημέρωση του πανεπιστημίου: " + uni.getName(), e);
         }
-    } 
+    }
 
     /**
-    * Αν το πανεπιστήμιο δεν υπάρχει, πραγματοποιείται εισαγωγή (INSERT).
-    * Εάν υπάρχει και δεν έχει τροποποιηθεί τοπικά, πραγματοποιείται ενημέρωση (UPDATE).
-    *
-    * @param uni το αντικείμενο University που θα εισαχθεί ή θα ενημερωθεί.
-    * @return ✅ {@code true} αν έγινε εισαγωγή νέας εγγραφής, 🔄 ή ⚠ {@code false} αν έγινε ενημέρωση ή καμία αλλαγή.
-    */
-   public boolean upsertUniversity(University uni) {
-       University existing = getUniversityByNameAndCountry(uni.getName(), uni.getCountry());
-       if (existing == null) {
-           boolean inserted = insertUniversity(uni);
-           if (inserted) {
-               LOGGER.log(Level.INFO, "✅ Νέο πανεπιστήμιο εισήχθη: {0}", uni.getName());
-           }
-           return inserted;
-       } else if (!existing.isModified()) {
-           uni.setId(existing.getId());
-           updateUniversityUser(uni);
-           LOGGER.log(Level.INFO, "🔄 Το υπάρχον πανεπιστήμιο ενημερώθηκε: {0}", uni.getName());
-           return false;
-       } else {
-           LOGGER.log(Level.WARNING, "⚠️ Το πανεπιστήμιο υπάρχει ήδη και έχει τροποποιηθεί τοπικά: {0}", uni.getName());
-           return false;
-       }
-   }
-
-   /**
-    * Αυξάνει τον μετρητή προβολών για το πανεπιστήμιο με το δοσμένο ID.
-    *
-    * @param universityId το αναγνωριστικό του πανεπιστημίου.
-    */
-   public void increaseViewCount(int universityId) {
-       String checkSql = "SELECT VIEWCOUNT FROM UNIVERSITYVIEW WHERE UNIVERSITYID = ?";
-       String updateSql = "UPDATE UNIVERSITYVIEW SET VIEWCOUNT = VIEWCOUNT + 1 WHERE UNIVERSITYID = ?";
-       String insertSql = "INSERT INTO UNIVERSITYVIEW (UNIVERSITYID, VIEWCOUNT) VALUES (?, 1)";
-       try (Connection conn = DBUtil.getInstance().getConnection();
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
-           checkStmt.setInt(1, universityId);
-           try (ResultSet rs = checkStmt.executeQuery()) {
-               if (rs.next()) {
-                   try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                       updateStmt.setInt(1, universityId);
-                       updateStmt.executeUpdate();
-                   }
-               } else {
-                   try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
-                       insertStmt.setInt(1, universityId);
-                       insertStmt.executeUpdate();
-                   }
-               }
-           }
-           LOGGER.log(Level.INFO, "👁️ Ο μετρητής προβολών αυξήθηκε για το πανεπιστήμιο με ID: {0}", universityId);
-       } catch (SQLException e) {
-           LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την αύξηση του μετρητή προβολών για το πανεπιστήμιο με ID: " 
-                   + universityId, e);
-       }
-   }
-
-
-   /**
-    * Επιστρέφει μια λίστα με τα πιο δημοφιλή πανεπιστήμια βάσει του αριθμού προβολών.
-    *
-    * @return λίστα με τα πανεπιστήμια ταξινομημένα κατά φθίνουσα σειρά προβολών.
-    */
-   public List<University> getPopularUniversities() {
-       List<University> popularList = new ArrayList<>();
-       String sql = "SELECT U.ID, U.NAME, U.COUNTRY, S.VIEWCOUNT " +
-                    "FROM UNIVERSITY U " +
-                    "JOIN UNIVERSITYVIEW S ON U.ID = S.UNIVERSITYID " +
-                    "ORDER BY S.VIEWCOUNT DESC";
-       try (Connection conn = DBUtil.getInstance().getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
-           while (rs.next()) {
-               University uni = new University();
-               uni.setId(rs.getInt("ID"));
-               uni.setName(rs.getString("NAME"));
-               uni.setCountry(rs.getString("COUNTRY"));
-               uni.setViewCount(rs.getInt("VIEWCOUNT"));
-               popularList.add(uni);
-           }
-       } catch (SQLException e) {
-           LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ανάκτηση των πιο δημοφιλών πανεπιστημίων", e);
-       }
-       return popularList;
-   }
-
-
-   /**
-    * Επιστρέφει όλα τα πανεπιστήμια από τη βάση δεδομένων.
-    *
-    * @return λίστα με όλα τα πανεπιστήμια.
-    */
-   public List<University> getAllUniversities() {
-       List<University> list = new ArrayList<>();
-       String sql = "SELECT * FROM UNIVERSITY";
-       try (Connection conn = DBUtil.getInstance().getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
-           while (rs.next()) {
-               University uni = new University();
-               uni.setId(rs.getInt("ID"));
-               uni.setName(rs.getString("NAME"));
-               uni.setCountry(rs.getString("COUNTRY"));
-               uni.setAlphaTwoCode(rs.getString("ALPHATWOCODE"));
-               uni.setStateProvince(rs.getString("STATEPROVINCE"));
-               uni.setDomains(rs.getString("DOMAINS"));
-               uni.setWebPages(rs.getString("WEBPAGES"));
-               uni.setSchool(rs.getString("SCHOOL"));
-               uni.setDepartment(rs.getString("DEPARTMENT"));
-               uni.setDescription(rs.getString("DESCRIPTION"));
-               uni.setContact(rs.getString("CONTACT"));
-               uni.setComments(rs.getString("COMMENTS"));
-               uni.setModified(rs.getBoolean("ISMODIFIED"));
-               list.add(uni);
-           }
-       } catch (SQLException e) {
-           LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ανάκτηση όλων των πανεπιστημίων", e);
-       }
-       return list;
-   }
-
-
-   /**
-    * Επιστρέφει τη λίστα όλων των χωρών που υπάρχουν στη βάση δεδομένων.
-    *
-    * @return λίστα με μοναδικές χώρες ταξινομημένες αλφαβητικά. Χρήση σε ComboBox.
-    */
-   public List<String> getAllCountries() {
-       List<String> countryList = new ArrayList<>();
-       String sql = "SELECT DISTINCT COUNTRY FROM UNIVERSITY ORDER BY COUNTRY";
-       try (Connection conn = DBUtil.getInstance().getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery()) {
-           while (rs.next()) {
-               countryList.add(rs.getString("COUNTRY"));
-           }
-       } catch (SQLException e) {
-           LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ανάκτηση όλων των χωρών", e);
-       }
-       return countryList;
-   }
-
-
-   /**
-    * Εξάγει ένα αντικείμενο University από το ResultSet.
-    *
-    * @param rs το ResultSet που περιέχει τα δεδομένα του πανεπιστημίου.
-    * @return το αντικείμενο University.
-    * @throws SQLException ⚠️ αν παρουσιαστεί πρόβλημα κατά την ανάκτηση των δεδομένων.
-    */
-   private University extractUniversity(ResultSet rs) throws SQLException {
-       return new University(
-               rs.getInt("ID"),
-               rs.getString("NAME"),
-               rs.getString("COUNTRY"),
-               rs.getString("ALPHATWOCODE"),
-               rs.getString("STATEPROVINCE"),
-               rs.getString("DOMAINS"),
-               rs.getString("WEBPAGES"),
-               rs.getString("SCHOOL"),
-               rs.getString("DEPARTMENT"),
-               rs.getString("DESCRIPTION"),
-               rs.getString("CONTACT"),
-               rs.getString("COMMENTS"),
-               rs.getBoolean("ISMODIFIED")
-       );
-   }
-
-
-    /**
-     * Αναζητά ένα πανεπιστήμιο βάσει του ID.
+     * Ελέγχει αν το πανεπιστήμιο υπάρχει ήδη στη βάση δεδομένων με βάση το όνομα και τη χώρα.
+     * <p>
+     * Αν δεν υπάρχει, πραγματοποιείται εισαγωγή (INSERT). Αν υπάρχει και δεν έχει τροποποιηθεί τοπικά,
+     * πραγματοποιείται ενημέρωση (UPDATE). Εάν υπάρχει και έχει τροποποιηθεί τοπικά, επιστρέφεται false.
+     * </p>
      *
-     * @param id το ID του πανεπιστημίου.
-     * @return το αντικείμενο University αν βρεθεί, αλλιώς {@code null}.
+     * @param uni Το αντικείμενο <code>University</code> που θα εισαχθεί ή θα ενημερωθεί.
+     * @return <code>true</code> αν έγινε εισαγωγή νέας εγγραφής, <code>false</code> σε περίπτωση ενημέρωσης ή αν
+     *         δεν πραγματοποιήθηκαν αλλαγές.
+     */
+    public boolean upsertUniversity(University uni) {
+        University existing = getUniversityByNameAndCountry(uni.getName(), uni.getCountry());
+        if (existing == null) {
+            boolean inserted = insertUniversity(uni);
+            if (inserted) {
+                LOGGER.log(Level.INFO, "✅ Νέο πανεπιστήμιο εισήχθη: {0}", uni.getName());
+            }
+            return inserted;
+        } else if (!existing.isModified()) {
+            uni.setId(existing.getId());
+            updateUniversityUser(uni);
+            LOGGER.log(Level.INFO, "🔄 Το υπάρχον πανεπιστήμιο ενημερώθηκε: {0}", uni.getName());
+            return false;
+        } else {
+            LOGGER.log(Level.WARNING, "⚠️ Το πανεπιστήμιο υπάρχει ήδη και έχει τροποποιηθεί τοπικά: {0}", uni.getName());
+            return false;
+        }
+    }
+
+    /**
+     * Αυξάνει τον μετρητή προβολών για το πανεπιστήμιο με το δοσμένο αναγνωριστικό.
+     * <p>
+     * Ελέγχει πρώτα εάν υπάρχει εγγραφή για το συγκεκριμένο πανεπιστήμιο στον πίνακα
+     * {@code UNIVERSITYVIEW}. Αν υπάρχει, ενημερώνει τον μετρητή (increment). Αν δεν υπάρχει,
+     * εισάγει μια νέα εγγραφή με αρχικό μετρητή 1.
+     * </p>
+     *
+     * @param universityId Το αναγνωριστικό του πανεπιστημίου.
+     */
+    public void increaseViewCount(int universityId) {
+        String checkSql = "SELECT VIEWCOUNT FROM UNIVERSITYVIEW WHERE UNIVERSITYID = ?";
+        String updateSql = "UPDATE UNIVERSITYVIEW SET VIEWCOUNT = VIEWCOUNT + 1 WHERE UNIVERSITYID = ?";
+        String insertSql = "INSERT INTO UNIVERSITYVIEW (UNIVERSITYID, VIEWCOUNT) VALUES (?, 1)";
+        try (Connection conn = DBUtil.getInstance().getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            checkStmt.setInt(1, universityId);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next()) {
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setInt(1, universityId);
+                        updateStmt.executeUpdate();
+                    }
+                } else {
+                    try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                        insertStmt.setInt(1, universityId);
+                        insertStmt.executeUpdate();
+                    }
+                }
+            }
+            LOGGER.log(Level.INFO, "👁️ Ο μετρητής προβολών αυξήθηκε για το πανεπιστήμιο με ID: {0}", universityId);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την αύξηση του μετρητή προβολών για το πανεπιστήμιο με ID: " 
+                    + universityId, e);
+        }
+    }
+
+    /**
+     * Επιστρέφει μια λίστα με τα πιο δημοφιλή πανεπιστήμια, ταξινομημένα κατά φθίνουσα σειρά
+     * με βάση τον αριθμό προβολών.
+     * <p>
+     * Συνδυάζει δεδομένα από τους πίνακες {@code UNIVERSITY} και {@code UNIVERSITYVIEW}.
+     * </p>
+     *
+     * @return Λίστα αντικειμένων <code>University</code> με τα πιο δημοφιλή πανεπιστήμια.
+     */
+    public List<University> getPopularUniversities() {
+        List<University> popularList = new ArrayList<>();
+        String sql = "SELECT U.ID, U.NAME, U.COUNTRY, S.VIEWCOUNT " +
+                     "FROM UNIVERSITY U " +
+                     "JOIN UNIVERSITYVIEW S ON U.ID = S.UNIVERSITYID " +
+                     "ORDER BY S.VIEWCOUNT DESC";
+        try (Connection conn = DBUtil.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                University uni = new University();
+                uni.setId(rs.getInt("ID"));
+                uni.setName(rs.getString("NAME"));
+                uni.setCountry(rs.getString("COUNTRY"));
+                uni.setViewCount(rs.getInt("VIEWCOUNT"));
+                popularList.add(uni);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ανάκτηση των πιο δημοφιλών πανεπιστημίων", e);
+        }
+        return popularList;
+    }
+
+    /**
+     * Επιστρέφει μια λίστα με όλα τα πανεπιστήμια που υπάρχουν στη βάση δεδομένων.
+     *
+     * @return Λίστα αντικειμένων <code>University</code> που αναπαριστούν όλα τα πανεπιστήμια.
+     */
+    public List<University> getAllUniversities() {
+        List<University> list = new ArrayList<>();
+        String sql = "SELECT * FROM UNIVERSITY";
+        try (Connection conn = DBUtil.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                University uni = new University();
+                uni.setId(rs.getInt("ID"));
+                uni.setName(rs.getString("NAME"));
+                uni.setCountry(rs.getString("COUNTRY"));
+                uni.setAlphaTwoCode(rs.getString("ALPHATWOCODE"));
+                uni.setStateProvince(rs.getString("STATEPROVINCE"));
+                uni.setDomains(rs.getString("DOMAINS"));
+                uni.setWebPages(rs.getString("WEBPAGES"));
+                uni.setSchool(rs.getString("SCHOOL"));
+                uni.setDepartment(rs.getString("DEPARTMENT"));
+                uni.setDescription(rs.getString("DESCRIPTION"));
+                uni.setContact(rs.getString("CONTACT"));
+                uni.setComments(rs.getString("COMMENTS"));
+                uni.setModified(rs.getBoolean("ISMODIFIED"));
+                list.add(uni);
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ανάκτηση όλων των πανεπιστημίων", e);
+        }
+        return list;
+    }
+
+    /**
+     * Επιστρέφει μια λίστα με όλες τις χώρες που υπάρχουν στα δεδομένα των πανεπιστημίων,
+     * ταξινομημένες αλφαβητικά. Η λίστα χρησιμοποιείται για παραδείγματα, όπως σε ComboBox.
+     *
+     * @return Λίστα <code>String</code> με μοναδικές χώρες.
+     */
+    public List<String> getAllCountries() {
+        List<String> countryList = new ArrayList<>();
+        String sql = "SELECT DISTINCT COUNTRY FROM UNIVERSITY ORDER BY COUNTRY";
+        try (Connection conn = DBUtil.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                countryList.add(rs.getString("COUNTRY"));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "❌️ Σφάλμα κατά την ανάκτηση όλων των χωρών", e);
+        }
+        return countryList;
+    }
+
+    /**
+     * Εξάγει και επιστρέφει ένα αντικείμενο <code>University</code> από το δεδομένο {@code ResultSet}.
+     *
+     * @param rs Το {@code ResultSet} που περιέχει τα δεδομένα του πανεπιστημίου.
+     * @return Το αντικείμενο <code>University</code> που προκύπτει από τα δεδομένα.
+     * @throws SQLException Εάν παρουσιαστεί σφάλμα κατά την ανάγνωση των δεδομένων.
+     */
+    private University extractUniversity(ResultSet rs) throws SQLException {
+        return new University(
+                rs.getInt("ID"),
+                rs.getString("NAME"),
+                rs.getString("COUNTRY"),
+                rs.getString("ALPHATWOCODE"),
+                rs.getString("STATEPROVINCE"),
+                rs.getString("DOMAINS"),
+                rs.getString("WEBPAGES"),
+                rs.getString("SCHOOL"),
+                rs.getString("DEPARTMENT"),
+                rs.getString("DESCRIPTION"),
+                rs.getString("CONTACT"),
+                rs.getString("COMMENTS"),
+                rs.getBoolean("ISMODIFIED")
+        );
+    }
+
+    /**
+     * Αναζητά ένα πανεπιστήμιο στη βάση δεδομένων βάσει του αναγνωριστικού του.
+     *
+     * @param id Το αναγνωριστικό του πανεπιστημίου.
+     * @return Το αντικείμενο <code>University</code> αν βρεθεί, αλλιώς <code>null</code>.
      */
     public University getUniversityById(int id) {
         University uni = null;
@@ -358,13 +391,15 @@ public class UniversityDAO {
         return uni;
     }
 
-
     /**
      * Αναζητά πανεπιστήμια χρησιμοποιώντας το LIKE για μερική αντιστοιχία στο όνομα και/ή στη χώρα.
+     * <p>
+     * Εάν τα κριτήρια είναι κενά, επιστρέφει όλα τα πανεπιστήμια.
+     * </p>
      *
-     * @param name    το όνομα (ή μέρος) του πανεπιστημίου.
-     * @param country η χώρα (ή μέρος) του πανεπιστημίου.
-     * @return λίστα με τα πανεπιστήμια που ταιριάζουν στα κριτήρια αναζήτησης.
+     * @param name    Το όνομα (ή μέρος του ονόματος) του πανεπιστημίου.
+     * @param country Η χώρα (ή μέρος της χώρας) του πανεπιστημίου.
+     * @return Λίστα με αντικείμενα <code>University</code> που ταιριάζουν στα κριτήρια αναζήτησης.
      */
     public List<University> searchUniversities(String name, String country) {
         List<University> list = new ArrayList<>();
@@ -392,7 +427,6 @@ public class UniversityDAO {
 
         String sql = sqlBuilder.toString();
 
-        // Εκτέλεση της SQL εντολής χρησιμοποιώντας try-with-resources.
         try (Connection conn = DBUtil.getInstance().getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -413,14 +447,16 @@ public class UniversityDAO {
         }
         return list;
     }
- 
-    
+
     /**
-     * Βοηθητική μέθοδος για την εκτέλεση μιας SQL εντολής με παραμέτρους και την ενημέρωση δεδομένων.
+     * Βοηθητική μέθοδος για την εκτέλεση μιας SQL εντολής ενημέρωσης δεδομένων με παραμέτρους.
+     * <p>
+     * Αυτή η μέθοδος χρησιμοποιείται για την κοινή λογική ενημέρωσης, ώστε να μην επαναλαμβάνεται ο κώδικας.
+     * </p>
      *
-     * @param sql       η SQL εντολή για την ενημέρωση.
-     * @param uni       το αντικείμενο University που περιέχει τα δεδομένα.
-     * @param userEdit  {@code true} αν πρόκειται για ενημέρωση από τον χρήστη, {@code false} για κανονική ενημέρωση.
+     * @param sql      Η SQL εντολή ενημέρωσης.
+     * @param uni      Το αντικείμενο <code>University</code> που περιέχει τα δεδομένα για την ενημέρωση.
+     * @param userEdit <code>true</code> αν η ενημέρωση προέρχεται από επεξεργασία χρήστη, <code>false</code> διαφορετικά.
      */
     private void executeUpdate(String sql, University uni, boolean userEdit) {
         try (Connection conn = DBUtil.getInstance().getConnection();
