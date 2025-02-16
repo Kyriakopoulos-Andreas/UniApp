@@ -20,6 +20,10 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.font.PdfFont;
 
+/**
+ *
+ * @author Στέλιος
+ */
 public class UniAppGUI extends JFrame {
     private JTable universityTable;
     private DefaultTableModel tableModel;
@@ -28,6 +32,9 @@ public class UniAppGUI extends JFrame {
     private JTextField txtSearchName;
     private JProgressBar progressBar;
 
+    /**
+     *
+     */
     public UniAppGUI() {
         setTitle("UniApp - Πανεπιστήμια");
         setSize(1000, 600);
@@ -340,6 +347,10 @@ public class UniAppGUI extends JFrame {
         }
     }
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             UniAppGUI gui = new UniAppGUI();
@@ -360,6 +371,10 @@ public class UniAppGUI extends JFrame {
     }
 
     // 🔹 Κλάση για JSON mapping
+
+    /**
+     *
+     */
     public static class UniversityJSON {
         private String name;
         private String country;
@@ -375,11 +390,40 @@ public class UniAppGUI extends JFrame {
         @SerializedName("web_pages")
         private java.util.List<String> webPages;
 
+        /**
+         *
+         * @return
+         */
         public String getName() { return name; }
+
+        /**
+         *
+         * @return
+         */
         public String getCountry() { return country; }
+
+        /**
+         *
+         * @return
+         */
         public String getAlphaTwoCode() { return alphaTwoCode; }
+
+        /**
+         *
+         * @return
+         */
         public String getStateProvince() { return stateProvince; }
+
+        /**
+         *
+         * @return
+         */
         public java.util.List<String> getDomains() { return domains; }
+
+        /**
+         *
+         * @return
+         */
         public java.util.List<String> getWebPages() { return webPages; }
     }
 
