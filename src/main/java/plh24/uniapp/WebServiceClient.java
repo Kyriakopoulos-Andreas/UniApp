@@ -14,8 +14,8 @@ import java.util.List;
  * 🔹 Κλάση για τη λήψη δεδομένων Πανεπιστημίων από το Web Service.
  */
 public class WebServiceClient {
-
-    private static final String API_URL = "http://universities.hipolabs.com/search";
+    private static final String API_URL = "https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json";
+    //private static final String API_URL = "http://universities.hipolabs.com/search";
     private static final OkHttpClient client = new OkHttpClient();
     private static final Gson gson = new Gson();
 

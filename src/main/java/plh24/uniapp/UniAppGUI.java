@@ -182,7 +182,7 @@ public class UniAppGUI extends JFrame {
             @Override
             protected Void doInBackground() {
                 try {
-                    String url = "http://universities.hipolabs.com/search";
+                    String url = "https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json";
                     OkHttpClient client = new OkHttpClient();
                     Request request = new Request.Builder().url(url).build();
                     Response response = client.newCall(request).execute();
