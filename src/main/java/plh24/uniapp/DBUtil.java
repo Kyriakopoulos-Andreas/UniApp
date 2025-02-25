@@ -42,8 +42,8 @@ public class DBUtil {
      * Ιδιωτικός constructor. Φορτώνει τις ρυθμίσεις και αρχικοποιεί τον Logger.
      */
     private DBUtil() {
+        initializeLogger();       
         loadProperties();
-        initializeLogger();
     }
 
     /**

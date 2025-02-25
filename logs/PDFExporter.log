@@ -1,14 +1,1 @@
-Φεβ 25, 2025 5:22:25 Μ.Μ. plh24.uniapp.PDFExporter <clinit>
-INFO: 📌 Έναρξη καταγραφής του Logger στο logs/PDFExporter.log
-Φεβ 25, 2025 5:22:25 Μ.Μ. plh24.uniapp.PDFExporter exportStatisticsToPDF
-INFO: ✅ Το αρχείο Stats_2025-02-25-17-22-25.pdf δημιουργήθηκε με επιτυχία.
-Φεβ 25, 2025 5:30:41 Μ.Μ. plh24.uniapp.PDFExporter <clinit>
-INFO: 📌 Έναρξη καταγραφής του Logger στο logs/PDFExporter.log
-Φεβ 25, 2025 5:30:41 Μ.Μ. plh24.uniapp.PDFExporter exportStatisticsToPDF
-INFO: ✅ Το αρχείο Stats_2025-02-25-17-30-41.pdf δημιουργήθηκε με επιτυχία.
-Φεβ 25, 2025 5:43:37 Μ.Μ. plh24.uniapp.PDFExporter initializeLogger
-INFO: 📌 Έναρξη καταγραφής του Logger στο logs/PDFExporter.log
-Φεβ 25, 2025 5:43:37 Μ.Μ. plh24.uniapp.PDFExporter exportStatisticsToPDF
-INFO: ✅ Το αρχείο Stats_2025-02-25-17-43-37.pdf δημιουργήθηκε με επιτυχία.
-Φεβ 25, 2025 5:43:41 Μ.Μ. plh24.uniapp.PDFExporter exportStatisticsToPDF
-INFO: ✅ Το αρχείο Stats_2025-02-25-17-43-41.pdf δημιουργήθηκε με επιτυχία.
+
