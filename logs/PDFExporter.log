@@ -1,1 +1,7 @@
 
+Φεβ 25, 2025 6:16:28 Μ.Μ. plh24.uniapp.PDFExporter initializeLogger
+INFO: 📌 Έναρξη καταγραφής του Logger στο logs/PDFExporter.log
+Φεβ 25, 2025 6:16:29 Μ.Μ. plh24.uniapp.PDFExporter exportStatisticsToPDF
+INFO: ✅ Το αρχείο Stats_2025-02-25-18-16-28.pdf δημιουργήθηκε με επιτυχία.
+Φεβ 25, 2025 6:16:40 Μ.Μ. plh24.uniapp.PDFExporter exportStatisticsToPDF
+INFO: ✅ Το αρχείο Stats_2025-02-25-18-16-39.pdf δημιουργήθηκε με επιτυχία.

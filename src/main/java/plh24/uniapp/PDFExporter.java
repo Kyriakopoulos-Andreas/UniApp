@@ -23,32 +23,12 @@ import java.io.IOException;
  * Η κλάση {@code PDFExporter} παρέχει λειτουργικότητα για την εξαγωγή στατιστικών πανεπιστημίων σε αρχείο PDF.
  *
  * <p>
- * Αυτή η κλάση είναι αποσυνδεδεμένη από οποιοδήποτε συγκεκριμένο περιβάλλον χρήστη (UI) και παρέχει στατικές
- * μεθόδους οι οποίες δέχονται μια λίστα αντικειμένων {@link University} και παράγουν ένα αρχείο PDF που περιέχει
- * τα στατιστικά. Το παραγόμενο PDF περιλαμβάνει έναν τίτλο και έναν πίνακα με στήλες για το ID, το Όνομα Πανεπιστημίου,
- * τη Χώρα και τις Προβολές.
+ * Η κλάση είναι αποσυνδεδεμένη από το UI και διαθέτει μία μέθοδο που δέχεται μια λίστα αντικειμένων {@link University}
+ * και δημιουργεί ένα PDF που περιέχει έναν τίτλο και έναν πίνακα στατιστικών (ID, Όνομα Πανεπιστημίου, Χώρα, Προβολές).
+ * Για την ορθή απόδοση των ελληνικών χαρακτήρων χρησιμοποιείται η γραμματοσειρά που βρίσκεται στο relative path
+ * {@value DEFAULT_FONT_RELATIVE_PATH}. Το όνομα του PDF δημιουργείται δυναμικά, π.χ. "Stats_2025-03-05-11-46-46.pdf".
  * </p>
  *
- * <p>
- * Για να αποδοθούν σωστά οι ελληνικοί χαρακτήρες, φορτώνεται μια γραμματοσειρά που υποστηρίζει τους ελληνικούς χαρακτήρες,
- * χρησιμοποιώντας ένα relative path. Βεβαιωθείτε ότι το αρχείο γραμματοσειράς (π.χ. FreeSans.ttf) βρίσκεται στο
- * "resources/fonts/FreeSans.ttf" σε σχέση με το working directory της εφαρμογής.
- * </p>
- *
- * <p>
- * <strong>Παράδειγμα Χρήσης:</strong>
- * <pre>
- *    List&lt;University&gt; popularUniversities = UniversityDAO.getInstance().getPopularUniversities();
- *    try {
- *         boolean success = PDFExporter.exportStatisticsToPDF(popularUniversities);
- *         if (success) {
- *              // Ενημέρωση για την επιτυχή δημιουργία του PDF
- *         }
- *    } catch (Exception ex) {
- *         // Διαχείριση της εξαίρεσης κατάλληλα
- *    }
- * </pre>
- * </p>
  */
 public class PDFExporter {
 
@@ -56,33 +36,39 @@ public class PDFExporter {
     private static final Logger LOGGER = Logger.getLogger(PDFExporter.class.getName());
 
     /**
-    * Static initializer block της κλάσης.
-    * <p>
-    * Αυτό το block εκτελείται μία φορά, κατά την πρώτη φόρτωση της κλάσης από το JVM.
-    * Εδώ καλείται η μέθοδος {@code initializeLogger()} για να ρυθμιστεί ο logger,
-    * ώστε όλα τα logs της κλάσης να καταγράφονται στο αρχείο "logs/PDFExporter.log".
-    * </p>
-    */
+     * Static initializer block της κλάσης.
+     * <p>
+     * Αυτό το block εκτελείται μία φορά, κατά την πρώτη φόρτωση της κλάσης από το JVM.
+     * Καλεί τη μέθοδο {@code initializeLogger()} για να ρυθμίσει τον logger,
+     * ώστε όλα τα logs να καταγράφονται στο αρχείο "logs/PDFExporter.log".
+     * </p>
+     */
     static {
-        // Καλείται η μέθοδος initializeLogger() για ρύθμιση του logger
         initializeLogger();
     }
     
-    // Static initializer για τη ρύθμιση του logger ώστε να γράφει σε αρχείο "logs/PDFExporter.log".
+    /**
+     * Αρχικοποιεί τον logger ώστε να γράφει τα logs σε εξωτερικό αρχείο.
+     * <p>
+     * Δημιουργεί τον φάκελο "logs" (αν δεν υπάρχει), αφαιρεί τους υπάρχοντες handlers,
+     * και προσθέτει έναν FileHandler που γράφει στο αρχείο "logs/PDFExporter.log" σε λειτουργία append.
+     * Ορίζει επίσης το επίπεδο καταγραφής σε ALL και απενεργοποιεί τους parent handlers.
+     * </p>
+     */
     private static void initializeLogger() {
         try {
-            // Δημιουργία του φακέλου "logs" εάν δεν υπάρχει.
+            // Δημιουργία του φακέλου "logs", εάν δεν υπάρχει.
             Files.createDirectories(Paths.get("logs"));
             // Αφαίρεση τυχόν υπάρχοντων handlers για αποφυγή διπλών καταγραφών.
             for (Handler h : LOGGER.getHandlers()) {
                 LOGGER.removeHandler(h);
             }
-            // Δημιουργία FileHandler που γράφει στο αρχείο "logs/PDFExporter.log" σε λειτουργία append.
+            // Δημιουργία FileHandler που γράφει στο "logs/PDFExporter.log" σε λειτουργία append.
             FileHandler fileHandler = new FileHandler("logs/PDFExporter.log", true);
             fileHandler.setFormatter(new SimpleFormatter());
             LOGGER.addHandler(fileHandler);
             
-            // Ρύθμιση επιπέδου καταγραφής και απενεργοποίηση του parent handler.
+            // Ρύθμιση επιπέδου καταγραφής και απενεργοποίηση των parent handlers.
             LOGGER.setLevel(Level.ALL);
             LOGGER.setUseParentHandlers(false);
             
@@ -96,21 +82,21 @@ public class PDFExporter {
     private static final String DEFAULT_FONT_RELATIVE_PATH = "resources/fonts/FreeSans.ttf";
 
     /**
-     * Εξάγει τα στατιστικά των πανεπιστημίων σε αρχείο PDF χρησιμοποιώντας δυναμική ονομασία αρχείου.
+     * Εξάγει τα στατιστικά των πανεπιστημίων σε αρχείο PDF.
      *
      * <p>
      * Αυτή η μέθοδος δέχεται μια λίστα αντικειμένων {@link University} και δημιουργεί ένα PDF με όνομα
-     * που βασίζεται στην τρέχουσα ημερομηνία και ώρα, π.χ. "Stats_2024-03-10-11-46-46.pdf". Το PDF περιέχει έναν τίτλο
+     * που βασίζεται στην τρέχουσα ημερομηνία και ώρα (π.χ. "Stats_2025-03-05-11-46-46.pdf"). Το PDF περιέχει έναν τίτλο
      * και έναν πίνακα στατιστικών, ενώ χρησιμοποιεί τη γραμματοσειρά που βρίσκεται στο {@value DEFAULT_FONT_RELATIVE_PATH}
-     * για να εξασφαλίσει την ορθή απόδοση των ελληνικών χαρακτήρων.
+     * για την ορθή απόδοση των ελληνικών χαρακτήρων.
      * </p>
      *
      * @param popularUniversities η λίστα των πανεπιστημίων προς εξαγωγή στο PDF.
-     * @return {@code true} αν το PDF δημιουργήθηκε επιτυχώς, {@code false} αν η λίστα είναι κενή ή null.
+     * @return {@code true} αν το PDF δημιουργήθηκε επιτυχώς, {@code false} αν η λίστα είναι null ή κενή.
      * @throws Exception σε περίπτωση σφάλματος κατά την δημιουργία του PDF.
      */
     public static boolean exportStatisticsToPDF(List<University> popularUniversities) throws Exception {
-        // Έλεγχος εάν η λίστα είναι null ή κενή.
+        // Έλεγχος αν η λίστα είναι null ή κενή.
         if (popularUniversities == null || popularUniversities.isEmpty()) {
             LOGGER.log(Level.INFO, "ℹ️ Δεν υπάρχουν διαθέσιμα στατιστικά για εξαγωγή.");
             return false;
@@ -121,39 +107,13 @@ public class PDFExporter {
         String timestamp = LocalDateTime.now().format(dtf);
         String dynamicFilename = "Stats_" + timestamp + ".pdf";
         
-        // Καλεί την υπερφορτωμένη μέθοδο με το δυναμικό όνομα αρχείου.
-        return exportStatisticsToPDF(popularUniversities, dynamicFilename, DEFAULT_FONT_RELATIVE_PATH);
-    }
-
-    /**
-     * Εξάγει τα στατιστικά των πανεπιστημίων σε αρχείο PDF με παραμετροποιήσιμες ρυθμίσεις.
-     *
-     * <p>
-     * Αυτή η μέθοδος δημιουργεί ένα PDF που περιέχει έναν τίτλο και έναν πίνακα με τα στατιστικά των πανεπιστημίων.
-     * Ο πίνακας περιλαμβάνει στήλες για το ID, το Όνομα Πανεπιστημίου, τη Χώρα και τις Προβολές. Η μέθοδος χρησιμοποιεί
-     * το relative path που παρέχεται για τη φόρτωση της γραμματοσειράς, προκειμένου να αποδοθούν σωστά οι ελληνικοί χαρακτήρες.
-     * </p>
-     *
-     * @param popularUniversities η λίστα των πανεπιστημίων προς εξαγωγή στο PDF.
-     * @param outputFilename      το όνομα του αρχείου PDF εξόδου.
-     * @param fontPath            το relative path προς το αρχείο γραμματοσειράς (π.χ. "resources/fonts/FreeSans.ttf").
-     * @return {@code true} αν το PDF δημιουργήθηκε επιτυχώς, {@code false} αν η λίστα είναι κενή ή null.
-     * @throws Exception σε περίπτωση σφάλματος κατά την δημιουργία του PDF.
-     */
-    public static boolean exportStatisticsToPDF(List<University> popularUniversities, String outputFilename, String fontPath) throws Exception {
-        // Έλεγχος εάν η λίστα είναι null ή κενή.
-        if (popularUniversities == null || popularUniversities.isEmpty()) {
-            LOGGER.log(Level.INFO, "ℹ Δεν υπάρχουν διαθέσιμα στατιστικά για εξαγωγή.");
-            return false;
-        }
-
         // Χρήση try-with-resources για αυτόματη διαχείριση πόρων (PdfWriter, PdfDocument, Document).
-        try (PdfWriter writer = new PdfWriter(outputFilename);
+        try (PdfWriter writer = new PdfWriter(dynamicFilename);
              PdfDocument pdf = new PdfDocument(writer);
              Document document = new Document(pdf)) {
 
             // Φόρτωση της γραμματοσειράς από το relative path.
-            PdfFont font = PdfFontFactory.createFont(fontPath, PdfEncodings.IDENTITY_H, true);
+            PdfFont font = PdfFontFactory.createFont(DEFAULT_FONT_RELATIVE_PATH, PdfEncodings.IDENTITY_H, true);
             document.setFont(font);
 
             // Δημιουργία ενός τίτλου για το PDF με κατάλληλη μορφοποίηση.
@@ -169,7 +129,7 @@ public class PDFExporter {
             document.add(table);
 
             // Καταγραφή μηνύματος επιτυχίας.
-            LOGGER.log(Level.INFO, "✅ Το αρχείο {0} δημιουργήθηκε με επιτυχία.", outputFilename);
+            LOGGER.log(Level.INFO, "✅ Το αρχείο {0} δημιουργήθηκε με επιτυχία.", dynamicFilename);
             return true;
         } catch (Exception e) {
             // Καταγραφή του σφάλματος και ρίψη της εξαίρεσης για περαιτέρω διαχείριση από τον caller.
@@ -183,7 +143,7 @@ public class PDFExporter {
      *
      * <p>
      * Ο πίνακας περιλαμβάνει στήλες για το ID, το Όνομα Πανεπιστημίου, τη Χώρα και τις Προβολές.
-     * Κάθε κελί του πίνακα μορφοποιείται με την κατάλληλη στοίχιση (κεντρική ή αριστερή, ανάλογα με το περιεχόμενο).
+     * Κάθε κελί μορφοποιείται με την κατάλληλη στοίχιση (κεντρική ή αριστερή, ανάλογα με το περιεχόμενο).
      * </p>
      *
      * @param popularUniversities η λίστα των πανεπιστημίων που θα συμπεριληφθούν στον πίνακα.
@@ -213,7 +173,6 @@ public class PDFExporter {
             table.addCell(new Cell().add(new Paragraph(String.valueOf(uni.getViewCount())))
                     .setTextAlignment(TextAlignment.CENTER));
         }
-        // Επιστροφή του πλήρως διαμορφωμένου πίνακα.
         return table;
     }
 

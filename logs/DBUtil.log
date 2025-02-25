@@ -1,0 +1,12 @@
+Φεβ 25, 2025 6:16:25 Μ.Μ. plh24.uniapp.DBUtil initializeLogger
+INFO: 📌 Έναρξη καταγραφής του Logger στο logs/DBUtil.log
+Φεβ 25, 2025 6:16:25 Μ.Μ. plh24.uniapp.DBUtil loadProperties
+INFO: ℹ️ Φορτώθηκε το dbconfig.properties
+Φεβ 25, 2025 6:16:25 Μ.Μ. plh24.uniapp.DBUtil loadProperties
+INFO: ℹ️ ️️DB_URL = jdbc:derby:UniDB;create=true
+Φεβ 25, 2025 6:16:25 Μ.Μ. plh24.uniapp.DBUtil loadProperties
+INFO: ℹ️ SQL_CREATE_UNIVERSITY_PATH = resources/sql/create_university.sql
+Φεβ 25, 2025 6:16:25 Μ.Μ. plh24.uniapp.DBUtil loadProperties
+INFO: ℹ️ SQL_CREATE_UNIVERSITYVIEW_PATH = resources/sql/create_universityview.sql
+Φεβ 25, 2025 6:16:25 Μ.Μ. plh24.uniapp.DBUtil loadProperties
+INFO: ℹ️ SQL_CREATE_INDEXES_PATH = resources/sql/create_indexes.sql
