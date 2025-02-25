@@ -1,11 +1,11 @@
 ----------------------------------------------------------------
-Tue Feb 25 13:32:59 EET 2025:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.16.1.1 - (1901046): instance a816c00e-0195-3ce1-b44a-000006a015e0 
-on database directory C:\Users\TS\OneDrive - Ελληνικό Ανοικτό Πανεπιστήμιο\ΠΛΗ24_PROJECT\UniApp\UniDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@33909752 
-Loaded from file:/C:/Users/TS/.m2/repository/org/apache/derby/derby/10.16.1.1/derby-10.16.1.1.jar
+Tue Feb 25 17:43:34 EET 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.16.1.1 - (1901046): instance a816c00e-0195-3dc7-1e25-00000e4e01d0 
+on database directory C:\Users\Στέλιος\OneDrive - Ελληνικό Ανοικτό Πανεπιστήμιο\ΠΛΗ24_PROJECT\UniApp\UniDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@33909752 
+Loaded from file:/C:/Users/%ce%a3%cf%84%ce%ad%ce%bb%ce%b9%ce%bf%cf%82/.m2/repository/org/apache/derby/derby/10.16.1.1/derby-10.16.1.1.jar
 java.vendor=Oracle Corporation
-java.runtime.version=22.0.2+9-70
-user.dir=C:\Users\TS\OneDrive - Ελληνικό Ανοικτό Πανεπιστήμιο\ΠΛΗ24_PROJECT\UniApp
+java.runtime.version=23.0.2+7-58
+user.dir=C:\Users\Στέλιος\OneDrive - Ελληνικό Ανοικτό Πανεπιστήμιο\ΠΛΗ24_PROJECT\UniApp
 os.name=Windows 11
 os.arch=amd64
 os.version=10.0

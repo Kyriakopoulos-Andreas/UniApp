@@ -54,9 +54,22 @@ public class PDFExporter {
 
     // Logger για καταγραφή μηνυμάτων και σφαλμάτων για την κλάση PDFExporter.
     private static final Logger LOGGER = Logger.getLogger(PDFExporter.class.getName());
+
+    /**
+    * Static initializer block της κλάσης.
+    * <p>
+    * Αυτό το block εκτελείται μία φορά, κατά την πρώτη φόρτωση της κλάσης από το JVM.
+    * Εδώ καλείται η μέθοδος {@code initializeLogger()} για να ρυθμιστεί ο logger,
+    * ώστε όλα τα logs της κλάσης να καταγράφονται στο αρχείο "logs/PDFExporter.log".
+    * </p>
+    */
+    static {
+        // Καλείται η μέθοδος initializeLogger() για ρύθμιση του logger
+        initializeLogger();
+    }
     
     // Static initializer για τη ρύθμιση του logger ώστε να γράφει σε αρχείο "logs/PDFExporter.log".
-    static {
+    private static void initializeLogger() {
         try {
             // Δημιουργία του φακέλου "logs" εάν δεν υπάρχει.
             Files.createDirectories(Paths.get("logs"));
