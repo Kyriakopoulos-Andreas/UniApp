@@ -12,28 +12,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-//import com.itextpdf.kernel.pdf.PdfDocument;
-//import com.itextpdf.kernel.pdf.PdfWriter;
-//import com.itextpdf.layout.Document;
-//import com.itextpdf.layout.element.Paragraph;
-//import com.itextpdf.layout.element.Table;
-//import com.itextpdf.kernel.font.PdfFontFactory;
-//import com.itextpdf.kernel.font.PdfFont;
-
-import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.property.TextAlignment;
-import com.itextpdf.layout.property.UnitValue;
-
-
 
 
 /**
@@ -118,7 +96,21 @@ public class UniAppGUI extends JFrame {
         loadButton.addActionListener(e -> loadAllUniversities());
         searchButton.addActionListener(e -> searchUniversities());
         statsButton.addActionListener(e -> showStatistics());
-        exportPdfButton.addActionListener(e -> PDFExporter.exportStatisticsToPDF());
+        
+        exportPdfButton.addActionListener(e -> {
+            List<University> popularUniversities = UniversityDAO.getInstance().getPopularUniversities();
+            try {
+                boolean success = PDFExporter.exportStatisticsToPDF(popularUniversities);
+                if (success) {
+                    JOptionPane.showMessageDialog(null, "Το PDF δημιουργήθηκε με επιτυχία!");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Δεν υπάρχουν διαθέσιμα στατιστικά για εξαγωγή.");
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "❌ Σφάλμα κατά τη δημιουργία του PDF: " + ex.getMessage(),
+                        "Σφάλμα", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         // 🔹 Διπλό κλικ για Edit
         universityTable.addMouseListener(new MouseAdapter() {
