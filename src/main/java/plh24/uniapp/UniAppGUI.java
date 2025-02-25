@@ -118,7 +118,7 @@ public class UniAppGUI extends JFrame {
         loadButton.addActionListener(e -> loadAllUniversities());
         searchButton.addActionListener(e -> searchUniversities());
         statsButton.addActionListener(e -> showStatistics());
-        exportPdfButton.addActionListener(e -> exportStatisticsToPDF());
+        exportPdfButton.addActionListener(e -> PDFExporter.exportStatisticsToPDF());
 
         // 🔹 Διπλό κλικ για Edit
         universityTable.addMouseListener(new MouseAdapter() {
@@ -156,114 +156,7 @@ public class UniAppGUI extends JFrame {
         JOptionPane.showMessageDialog(this, new JScrollPane(statsTable), "Στατιστικά Πανεπιστημίων", JOptionPane.INFORMATION_MESSAGE);
     }
     
-private void exportStatisticsToPDF() {
-    UniversityDAO dao = UniversityDAO.getInstance();
-    List<University> popularUniversities = dao.getPopularUniversities();
-
-    if (popularUniversities.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Δεν υπάρχουν διαθέσιμα στατιστικά για εκτύπωση.");
-        return;
-    }
-
-    try {
-        PdfWriter writer = new PdfWriter("statistics.pdf");
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
-
-        // Φόρτωση γραμματοσειράς που υποστηρίζει ελληνικούς χαρακτήρες
-        PdfFont font = PdfFontFactory.createFont("resources/fonts/FreeSans.ttf", PdfEncodings.IDENTITY_H, true);
-        document.setFont(font);
-
-        // Τίτλος
-        Paragraph title = new Paragraph("Στατιστικά Δημοφιλέστερων Αναζητήσεων")
-                .setFontSize(18)
-                .setBold()
-                .setTextAlignment(TextAlignment.CENTER)
-                .setMarginBottom(20);
-        document.add(title);
-
-        // Ορισμός πίνακα
-        float[] columnWidths = {1, 4, 3, 2};
-        Table table = new Table(UnitValue.createPercentArray(columnWidths))
-                .useAllAvailableWidth();
-
-        // Επικεφαλίδες με σκούρο φόντο και κεντρική στοίχιση
-        table.addHeaderCell(new Cell().add(new Paragraph("ID"))
-                .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                .setBold()
-                .setTextAlignment(TextAlignment.CENTER));
-        table.addHeaderCell(new Cell().add(new Paragraph("Όνομα Πανεπιστημίου"))
-                .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                .setBold()
-                .setTextAlignment(TextAlignment.CENTER));
-        table.addHeaderCell(new Cell().add(new Paragraph("Χώρα"))
-                .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                .setBold()
-                .setTextAlignment(TextAlignment.CENTER));
-        table.addHeaderCell(new Cell().add(new Paragraph("Προβολές"))
-                .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                .setBold()
-                .setTextAlignment(TextAlignment.CENTER));
-
-        // Προσθήκη δεδομένων
-        for (University uni : popularUniversities) {
-            table.addCell(new Cell().add(new Paragraph(String.valueOf(uni.getId())))
-                    .setTextAlignment(TextAlignment.CENTER));
-            table.addCell(new Cell().add(new Paragraph(uni.getName()))
-                    .setTextAlignment(TextAlignment.LEFT));
-            table.addCell(new Cell().add(new Paragraph(uni.getCountry()))
-                    .setTextAlignment(TextAlignment.LEFT));
-            table.addCell(new Cell().add(new Paragraph(String.valueOf(uni.getViewCount())))
-                    .setTextAlignment(TextAlignment.CENTER));
-        }
-
-        document.add(table);
-        document.close();
-        JOptionPane.showMessageDialog(this, "Το αρχείο statistics.pdf δημιουργήθηκε με επιτυχία!");
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "❌ Σφάλμα κατά τη δημιουργία του PDF.", "Σφάλμα", JOptionPane.ERROR_MESSAGE);
-    }
-}
     
-/**
-    private void exportStatisticsToPDF() {
-        UniversityDAO dao = UniversityDAO.getInstance();
-        List<University> popularUniversities = dao.getPopularUniversities();
-
-        if (popularUniversities.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Δεν υπάρχουν διαθέσιμα στατιστικά για εκτύπωση.");
-            return;
-        }
-
-        try {
-            PdfWriter writer = new PdfWriter("statistics.pdf");
-            PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
-            document.add(new Paragraph("Στατιστικά Πανεπιστημίων"));
-
-            Table table = new Table(4);
-            table.addCell("ID");
-            table.addCell("Όνομα Πανεπιστημίου");
-            table.addCell("Χώρα");
-            table.addCell("Προβολές");
-
-            for (University uni : popularUniversities) {
-                table.addCell(String.valueOf(uni.getId()));
-                table.addCell(uni.getName());
-                table.addCell(uni.getCountry());
-                table.addCell(String.valueOf(uni.getViewCount()));
-            }
-
-            document.add(table);
-            document.close();
-            JOptionPane.showMessageDialog(this, "Το αρχείο statistics.pdf δημιουργήθηκε με επιτυχία!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "❌ Σφάλμα κατά τη δημιουργία του PDF.", "Σφάλμα", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-*/
     private void refreshDataFromWebService() {
         SwingWorker<Void, Integer> worker = new SwingWorker<>() {
             @Override
